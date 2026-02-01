@@ -5,6 +5,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import CustomerDashboard from './pages/CustomerDashboard';
 import AgentDashboard from './pages/AgentDashboard';
+import CustomCursor from './components/CustomCursor';
+import Background from './components/Background';
 import './index.css';
 
 // Protected Route Component
@@ -39,6 +41,8 @@ const ProtectedRoute = ({ children, requiredRole }) => {
 function App() {
   return (
     <AuthProvider>
+      <CustomCursor />
+      <Background />
       <Router>
         <Routes>
           <Route path="/" element={<Navigate to="/login" />} />
