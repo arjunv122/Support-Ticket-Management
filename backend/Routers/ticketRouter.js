@@ -6,13 +6,18 @@ const {
     getAssignedTickets,
     updateTicketStatus,
     reassignTicket,
-    getAllTickets
+    getAllTickets,
+    addComment
 } = require('../Controller/ticketController');
 const { protect, requireCustomer, requireAgent } = require('../Middleware/authMiddleware');
+const upload = require('../Middleware/uploadMiddleware');
 
 // Customer routes
-router.post('/', protect, requireCustomer, createTicket);
+router.post('/', protect, requireCustomer, upload.array('attachments', 5), createTicket);
 router.get('/my-tickets', protect, requireCustomer, getMyTickets);
+
+// Shared: Comments (both customer & agent can reply)
+router.post('/:id/comments', protect, addComment);
 
 // Agent routes
 router.get('/assigned', protect, requireAgent, getAssignedTickets);

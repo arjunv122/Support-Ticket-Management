@@ -1,82 +1,100 @@
 import React, { useEffect, useState } from 'react';
 
 const CustomCursor = () => {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [pos, setPos] = useState({ x: -100, y: -100 });
+  const [ring, setRing] = useState({ x: -100, y: -100 });
   const [isPointer, setIsPointer] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    let ringX = -100, ringY = -100;
+    let rafId;
+
+    const lerp = (a, b, t) => a + (b - a) * t;
+
+    const animate = () => {
+      ringX = lerp(ringX, pos.x, 0.12);
+      ringY = lerp(ringY, pos.y, 0.12);
+      setRing({ x: ringX, y: ringY });
+      rafId = requestAnimationFrame(animate);
+    };
+    rafId = requestAnimationFrame(animate);
+
     const handleMouseMove = (e) => {
-      setPosition({ x: e.clientX, y: e.clientY });
-      
+      setPos({ x: e.clientX, y: e.clientY });
+      if (!isVisible) setIsVisible(true);
+
       const target = e.target;
-      const isClickable = 
-        target.tagName.toLowerCase() === 'button' ||
-        target.tagName.toLowerCase() === 'a' ||
+      const clickable =
+        target.tagName === 'BUTTON' ||
+        target.tagName === 'A' ||
         target.closest('button') ||
         target.closest('a') ||
-        target.classList.contains('clickable') ||
         window.getComputedStyle(target).cursor === 'pointer';
-        
-      setIsPointer(isClickable);
+      setIsPointer(!!clickable);
     };
 
+    const handleMouseLeave = () => setIsVisible(false);
+    const handleMouseEnter = () => setIsVisible(true);
+
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+    document.addEventListener('mouseleave', handleMouseLeave);
+    document.addEventListener('mouseenter', handleMouseEnter);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+      document.removeEventListener('mouseenter', handleMouseEnter);
+    };
+  }, [pos.x, pos.y, isVisible]);
 
   return (
     <>
-      <div 
-        className="cursor-dot"
+      {/* Dot — follows cursor exactly */}
+      <div
         style={{
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          transform: isPointer ? 'translate(-50%, -50%) scale(1.5)' : 'translate(-50%, -50%) scale(1)'
+          position: 'fixed',
+          left: pos.x,
+          top: pos.y,
+          width: isPointer ? 10 : 7,
+          height: isPointer ? 10 : 7,
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, #6366f1, #d946ef)',
+          transform: 'translate(-50%, -50%)',
+          pointerEvents: 'none',
+          zIndex: 9999,
+          opacity: isVisible ? 1 : 0,
+          transition: 'width 0.2s, height 0.2s, opacity 0.3s',
+          boxShadow: '0 0 8px rgba(99,102,241,0.8)',
         }}
       />
-      <div 
-        className="cursor-ring"
+      {/* Ring — smooth-follow */}
+      <div
         style={{
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          transform: isPointer ? 'translate(-50%, -50%) scale(1.5)' : 'translate(-50%, -50%) scale(1)'
+          position: 'fixed',
+          left: ring.x,
+          top: ring.y,
+          width: isPointer ? 44 : 32,
+          height: isPointer ? 44 : 32,
+          borderRadius: '50%',
+          border: '1.5px solid rgba(99,102,241,0.6)',
+          background: isPointer ? 'rgba(99,102,241,0.08)' : 'transparent',
+          transform: 'translate(-50%, -50%)',
+          pointerEvents: 'none',
+          zIndex: 9998,
+          opacity: isVisible ? 1 : 0,
+          transition: 'width 0.25s, height 0.25s, opacity 0.3s, background 0.25s',
         }}
       />
       <style>{`
-        body {
-          cursor: none;
+        @media (hover: none) {
+          /* Touch devices - hide custom cursor */
+          body { cursor: auto !important; }
         }
-        
-        .cursor-dot {
-          width: 8px;
-          height: 8px;
-          background-color: var(--accent, #8b5cf6);
-          border-radius: 50%;
-          position: fixed;
-          pointer-events: none;
-          z-index: 9999;
-          transition: transform 0.15s ease-out;
-        }
-        
-        .cursor-ring {
-          width: 32px;
-          height: 32px;
-          border: 2px solid var(--primary, #6366f1);
-          border-radius: 50%;
-          position: fixed;
-          pointer-events: none;
-          z-index: 9999;
-          transition: left 0.1s ease-out, top 0.1s ease-out, transform 0.2s ease-out;
-          mix-blend-mode: difference;
-        }
-        
-        @media (max-width: 768px) {
-          .cursor-dot, .cursor-ring {
-            display: none;
-          }
-          body {
-            cursor: auto;
-          }
+        @media (hover: hover) {
+          body { cursor: none !important; }
+          a, button, [role=button], select, input, textarea { cursor: none !important; }
         }
       `}</style>
     </>

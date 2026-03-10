@@ -1,12 +1,13 @@
 const Ticket = require('../Models/ticketModel');
 const User = require('../Models/userModel');
+const path = require('path');
 
 // @desc    Create new ticket
 // @route   POST /api/tickets
 // @access  Private (Customer only)
 const createTicket = async (req, res) => {
     try {
-        const { title, description } = req.body;
+        const { title, description, priority, category } = req.body;
 
         // Validation
         if (!title || !description) {
@@ -16,9 +17,18 @@ const createTicket = async (req, res) => {
         // Get first available agent to auto-assign
         const agent = await User.findOne({ role: 'AGENT' });
 
+        // Handle uploaded file attachments
+        const attachments = req.files ? req.files.map(file => ({
+            filename: file.originalname,
+            url: `/uploads/${file.filename}`
+        })) : [];
+
         const ticket = await Ticket.create({
             title,
             description,
+            priority: priority || 'MEDIUM',
+            category: category || 'GENERAL',
+            attachments,
             customerId: req.user._id,
             assignedAgentId: agent ? agent._id : null
         });
@@ -29,6 +39,7 @@ const createTicket = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
 
 // @desc    Get customer's own tickets
 // @route   GET /api/tickets/my-tickets
@@ -189,11 +200,56 @@ const getAllTickets = async (req, res) => {
     }
 };
 
+// @desc    Add a comment/reply to a ticket
+// @route   POST /api/tickets/:id/comments
+// @access  Private (Customer who owns ticket OR assigned Agent)
+const addComment = async (req, res) => {
+    try {
+        const { text, isInternal } = req.body;
+        if (!text || !text.trim()) {
+            return res.status(400).json({ message: 'Comment text is required' });
+        }
+
+        const ticket = await Ticket.findById(req.params.id);
+        if (!ticket) return res.status(404).json({ message: 'Ticket not found' });
+
+        // Access control: only the customer who owns it or the assigned agent
+        const isOwner = ticket.customerId.toString() === req.user._id.toString();
+        const isAgent = req.user.role === 'AGENT';
+        if (!isOwner && !isAgent) {
+            return res.status(403).json({ message: 'Not authorized to comment on this ticket' });
+        }
+
+        // Customers cannot post internal notes
+        const internal = isAgent && !!isInternal;
+
+        ticket.comments.push({
+            authorId: req.user._id,
+            authorName: req.user.name,
+            authorRole: req.user.role,
+            text: text.trim(),
+            isInternal: internal
+        });
+
+        await ticket.save();
+        const updated = await Ticket.findById(ticket._id)
+            .populate('customerId', 'name email')
+            .populate('assignedAgentId', 'name email');
+
+        res.status(201).json(updated);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
 module.exports = {
     createTicket,
     getMyTickets,
     getAssignedTickets,
     updateTicketStatus,
     reassignTicket,
-    getAllTickets
+    getAllTickets,
+    addComment
 };
+
