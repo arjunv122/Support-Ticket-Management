@@ -5,6 +5,7 @@ const path = require('path');
 const connectDB = require('./Database/connection');
 const authRouter = require('./Routers/authRouter');
 const ticketRouter = require('./Routers/ticketRouter');
+const organizationRouter = require('./Routers/organizationRouter');
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Routes
 app.use('/api/auth', authRouter);
 app.use('/api/tickets', ticketRouter);
+app.use('/api/organizations', organizationRouter);
 
 // Root route
 app.get('/', (req, res) => {

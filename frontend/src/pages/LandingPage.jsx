@@ -51,9 +51,7 @@ const LandingPage = () => {
             <nav className="landing-nav">
                 <div className="landing-nav-inner">
                     <div className="landing-logo">
-                        <span className="logo-icon">⚡</span>
                         <span className="logo-text">TicketFlow</span>
-                        <span className="logo-badge">PRO</span>
                     </div>
                     <div className="landing-nav-actions">
                         <ThemeToggle />
@@ -69,9 +67,7 @@ const LandingPage = () => {
                 <div className="hero-glow hero-glow-2" />
 
                 <div className="landing-container">
-                    <div className="hero-badge">
-                        <span>🚀</span> The support platform your team actually wants to use
-                    </div>
+
 
                     <h1 className="hero-title">
                         Resolve tickets<br />
@@ -183,7 +179,6 @@ const LandingPage = () => {
                 <div className="landing-container">
                     <div className="footer-inner">
                         <div className="landing-logo">
-                            <span className="logo-icon">⚡</span>
                             <span className="logo-text">TicketFlow</span>
                         </div>
                         <p className="footer-copy">© 2026 TicketFlow. Built for teams that care about support.</p>

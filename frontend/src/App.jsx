@@ -9,6 +9,10 @@ import CustomerDashboard from './pages/CustomerDashboard';
 import AgentDashboard from './pages/AgentDashboard';
 import CustomCursor from './components/CustomCursor';
 import Background from './components/Background';
+import AgentLayout from './layouts/AgentLayout';
+import Customers from './pages/Customers';
+import Organizations from './pages/Organizations';
+import Reporting from './pages/Reporting';
 import './index.css';
 
 
@@ -66,10 +70,15 @@ function App() {
               path="/agent-dashboard"
               element={
                 <ProtectedRoute requiredRole="AGENT">
-                  <AgentDashboard />
+                  <AgentLayout />
                 </ProtectedRoute>
               }
-            />
+            >
+              <Route index element={<AgentDashboard />} />
+              <Route path="customers" element={<Customers />} />
+              <Route path="organizations" element={<Organizations />} />
+              <Route path="reporting" element={<Reporting />} />
+            </Route>
           </Routes>
         </Router>
       </AuthProvider>

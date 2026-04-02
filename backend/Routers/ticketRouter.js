@@ -7,7 +7,10 @@ const {
     updateTicketStatus,
     reassignTicket,
     getAllTickets,
-    addComment
+    addComment,
+    getTicketEvents,
+    updateTags,
+    togglePin
 } = require('../Controller/ticketController');
 const { protect, requireCustomer, requireAgent } = require('../Middleware/authMiddleware');
 const upload = require('../Middleware/uploadMiddleware');
@@ -22,7 +25,10 @@ router.post('/:id/comments', protect, addComment);
 // Agent routes
 router.get('/assigned', protect, requireAgent, getAssignedTickets);
 router.get('/all', protect, requireAgent, getAllTickets);
+router.get('/:id/events', protect, getTicketEvents);
 router.put('/:id/status', protect, requireAgent, updateTicketStatus);
 router.put('/:id/reassign', protect, requireAgent, reassignTicket);
+router.put('/:id/tags', protect, requireAgent, updateTags);
+router.put('/:id/pin', protect, togglePin);
 
 module.exports = router;

@@ -78,7 +78,9 @@ const ticketSchema = new mongoose.Schema({
         fromAgentId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         toAgentId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
         reassignedAt: { type: Date, default: Date.now }
-    }]
+    }],
+    tags: [{ type: String, trim: true }],
+    pinnedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Ticket', ticketSchema);

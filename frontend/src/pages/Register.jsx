@@ -32,9 +32,7 @@ const Register = () => {
             <div className="auth-split-left">
                 <div className="auth-left-inner">
                     <Link to="/" className="auth-logo">
-                        <span className="logo-icon">⚡</span>
                         <span className="logo-text">TicketFlow</span>
-                        <span className="logo-badge">PRO</span>
                     </Link>
 
                     <div className="auth-left-hero">

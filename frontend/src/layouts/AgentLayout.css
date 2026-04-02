@@ -1,0 +1,15 @@
+.agent-layout-wrapper {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.agent-main-content {
+  flex: 1;
+  margin-left: 72px; /* width of the sidebar */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 10;
+}
